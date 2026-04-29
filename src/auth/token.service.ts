@@ -19,18 +19,21 @@ export class TokenService {
         return this.fetchNewToken();
     }
 
-    private async fetchNewToken(): Promise<string> {
-        const params = new URLSearchParams({
-            grant_type: 'client_credentials',
-            client_id: process.env.ORDS_CLIENT_ID!,
-            client_secret: process.env.ORDS_CLIENT_SECRET!,
-        });
 
+    private async fetchNewToken(): Promise<string> {
         const { data } = await firstValueFrom(
             this.http.post(
                 `${process.env.ORDS_BASE_URL}/oauth/token`,
-                params.toString(),
-                { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
+                'grant_type=client_credentials',
+                {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    auth: {
+                        username: process.env.ORDS_CLIENT_ID!,
+                        password: process.env.ORDS_CLIENT_SECRET!,
+                    },
+                },
             ),
         );
 
@@ -40,8 +43,7 @@ export class TokenService {
         if (!this.cachedToken) {
             throw new Error('Token not available');
         }
-        return this.cachedToken
+        return this.cachedToken;
     }
-
 
 }
